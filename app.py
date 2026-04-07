@@ -9,7 +9,7 @@ Endpoints:
 
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
 
 import environment.env as env_module
@@ -50,7 +50,10 @@ def health():
 
 
 @app.post("/reset", response_model=StepResult)
-def reset(request: ResetRequest):
+def reset(request: Optional[ResetRequest] = Body(default=None)):
+    # Accept empty body, missing body, or partial JSON — all valid for a ping
+    if request is None:
+        request = ResetRequest()
     if request.task_id not in TASK_IDS:
         raise HTTPException(
             status_code=400,
