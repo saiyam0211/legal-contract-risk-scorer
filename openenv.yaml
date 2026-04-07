@@ -1,0 +1,107 @@
+name: legal-contract-risk-scorer
+version: "1.0.0"
+description: >
+  OpenEnv environment for AI-powered legal contract clause risk scoring.
+  An agent reviews contract clauses, assigns risk levels (low/medium/high/critical),
+  categorises each clause, flags missing standard protections, and suggests rewrites
+  for the most dangerous provisions.
+entry_point: "uvicorn app:app --host 0.0.0.0 --port 7860"
+
+tasks:
+  - id: easy_clause_risk
+    name: Single Clause Risk Identification
+    difficulty: easy
+    max_steps: 6
+    description: >
+      Review 5 individual contract clauses. For each, identify the risk level
+      (low/medium/high/critical) and category. Graded on risk-level accuracy.
+
+  - id: medium_section_analysis
+    name: Contract Section Analysis
+    difficulty: medium
+    max_steps: 15
+    description: >
+      Analyse a 12-clause software development contract. Assess risk level,
+      category, and is_risky for each clause. Also flag missing standard
+      protections (force_majeure, dispute_resolution).
+
+  - id: hard_full_review
+    name: Full Contract Risk Report
+    difficulty: hard
+    max_steps: 30
+    description: >
+      Complete risk review of a 20-clause service agreement. Assess all clauses,
+      flag missing protections, and suggest rewrites for the top risky clauses.
+
+observation_space:
+  type: object
+  properties:
+    session_id:
+      type: string
+      description: Unique session identifier
+    task_id:
+      type: string
+    step:
+      type: integer
+    max_steps:
+      type: integer
+    current_clause:
+      type: object
+      nullable: true
+      properties:
+        clause_id: {type: string}
+        text: {type: string}
+        position: {type: integer}
+    all_clauses:
+      type: array
+      items: {type: object}
+    reviewed_clauses:
+      type: array
+      items: {type: string}
+    task_description:
+      type: string
+    available_actions:
+      type: array
+      items: {type: string}
+    missing_protections_flagged:
+      type: array
+      items: {type: string}
+
+action_space:
+  type: object
+  properties:
+    action_type:
+      type: string
+      enum: [assess_clause, flag_missing, suggest_rewrite, submit_report]
+    clause_id:
+      type: string
+      nullable: true
+    risk_level:
+      type: string
+      enum: [low, medium, high, critical]
+      nullable: true
+    category:
+      type: string
+      enum: [liability, indemnification, IP, confidentiality, payment,
+             termination, warranty, governing_law, SLA, data_privacy, other]
+      nullable: true
+    is_risky:
+      type: boolean
+      nullable: true
+    reasoning:
+      type: string
+      nullable: true
+    missing_protections:
+      type: array
+      items: {type: string}
+      nullable: true
+    suggested_rewrite:
+      type: string
+      nullable: true
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: >
+    Per-step partial reward based on correctness of clause assessments.
+    Final episode score is computed by the task grader and reported in info.final_score.
