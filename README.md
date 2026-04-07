@@ -7,7 +7,6 @@ sdk: docker
 app_port: 7860
 pinned: false
 ---
-
 # Legal Contract Clause Risk Scoring — OpenEnv Environment
 
 An OpenEnv-compliant reinforcement-learning environment where AI agents practice
