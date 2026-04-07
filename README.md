@@ -1,6 +1,6 @@
 ---
 title: Legal Contract Risk Scorer
-emoji: scales
+emoji: "⚖️"
 colorFrom: blue
 colorTo: purple
 sdk: docker
